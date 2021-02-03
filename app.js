@@ -15,18 +15,18 @@ async function createPlaylist() {
             "public": false
         };
 
-        let query = `https://api.spotify.com/v1/users/${process.env.SPOTIFY_ID}/playlists`
+        let query = `https://api.spotify.com/v1/users/${process.env.USER_ID}/playlists`
 
         let req = await axios.post(query, requestBody, {
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${process.env.SPOTIFY_SECRET}`
+                "Authorization": `Bearer ${process.env.USER_TOKEN}`
             }
         });
 
-        let data = await req.json();
+        return req;
+        // const { status, statusText, config: { url, data }, data: { id, description, href, name } } = req;
 
-        return data["id"];
     } catch (err) {
         console.log(err);
     }
