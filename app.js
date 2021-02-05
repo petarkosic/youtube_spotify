@@ -4,6 +4,61 @@ require('dotenv').config();
 const PORT = process.env.PORT || 5000;
 const app = express();
 
+const inquirer = require('inquirer');
+
+let question = [
+    {
+        type: 'input',
+        name: 'username',
+        message: 'Your youtube username: '
+    },
+    {
+        type: 'input',
+        name: 'youtubePlaylistName',
+        message: 'Youtube playlist name: '
+    },
+    {
+        type: 'input',
+        name: 'spotifyPlaylistName',
+        message: 'Spotify playlist name: '
+    },
+];
+
+inquirer.prompt(question)
+    .then(answer => {
+        let { username, youtubePlaylistName, spotifyPlaylistName } = answer;
+
+        console.log(username);
+        console.log(youtubePlaylistName);
+        console.log(spotifyPlaylistName);
+    })
+
+// const { google } = require('googleapis');
+
+// const youtube = google.youtube({
+//     version: 'v3',
+//     auth: process.env.YOUTUBE_KEY
+// });
+
+// let url = youtube.playlists.list({ part: ['snippet', 'contentDetails'], channelId: 'UClTyvJkG7idnsaTY5QeV4Ew' });
+
+// console.log(url.then(console.log));
+
+// const YOUTUBE_PLAYLIST_ITEMS_API = 'https://www.googleapis.com/youtube/v3/playlistItems';
+
+
+// async function callApi() {
+//     const res = await axios.get(`${YOUTUBE_PLAYLIST_ITEMS_API}?part=snippet&maxResults=50&playlistId=-------------------&key=${process.env.YOUTUBE_KEY}`)
+
+//     // console.log(res.data.items[0].snippet.title);
+
+//     res.data.items.forEach(item => {
+//         console.log(item.snippet.title);
+//     })
+
+// }
+// callApi();
+
 // create a playlist
 async function createPlaylist() {
 
@@ -59,7 +114,7 @@ async function listCurrentUsersPlaylists() {
     }
 };
 
-listCurrentUsersPlaylists();
+// listCurrentUsersPlaylists();
 
 app.listen(PORT, (req, res) => {
     console.log(`Server listening on port ${PORT}`);
