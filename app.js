@@ -26,49 +26,14 @@ let question = [
 
 inquirer.prompt(question)
     .then(answer => {
-        let { username, youtubePlaylistName, spotifyPlaylistName } = answer;
+        let { username } = answer;
 
         callApi(username);
-
-        // console.log(username);
-        // console.log(youtubePlaylistName);
-        // console.log(spotifyPlaylistName);
     })
-
-// let url = 'https://developers.google.com/apis-explorer/#p/youtube/v3/youtube.playlists.list?part=snippet,contentDetails&channelId=UClTyvJkG7idnsaTY5QeV4Ew';
-
-// async function playlists() {
-
-//     let req = await axios.get(url, {
-//         headers: {
-//             "Content-Type": "application/json",
-//             "Authorization": `Bearer ${process.env.USER_TOKEN}`
-//         }
-//     });
-
-//     console.log(req);
-// };
-// playlists();
-
-// const google = require('googleapis');
-// const auth = google.auth.OAuth2;
-
-// const client = new auth();
-
-// const youtube = google.youtube({
-//     version: 'v3',
-//     auth: process.env.YOUTUBE_KEY
-// });
-
-
-// let url = youtube.playlists.list({ part: ['snippet', 'contentDetails'], channelId: 'UClTyvJkG7idnsaTY5QeV4Ew' });
-
-// console.log(url.then(console.log));
 
 async function callApi(username) {
     const res = await axios.get(`https://www.googleapis.com/youtube/v3/channels?access_token=${process.env.GOOGLE_ACCESS_TOKEN}&part=snippet,contentDetails&forUsername=${username}`);
 
-    // console.log(res.data.items[0].id);
     let id = res?.data?.items[0]?.id;
     getChannelPlaylists(id);
 
@@ -77,8 +42,14 @@ async function callApi(username) {
 async function getChannelPlaylists(id) {
     const res = await axios.get(`https://www.googleapis.com/youtube/v3/playlists?access_token=${process.env.GOOGLE_ACCESS_TOKEN}&part=snippet&channelId=${id}`)
 
+    let namesAndIds = {};
+
     const playlistNames = res.data.items.map(item => {
         return item.snippet.title;
+    });
+
+    const playlistNamesAndIds = res.data.items.map(item => {
+        return namesAndIds[item.snippet.title] = item.id;
     });
 
     const playlistIds = res.data.items.map(item => {
@@ -89,13 +60,13 @@ async function getChannelPlaylists(id) {
         {
             type: 'input',
             name: 'youtubePlaylistName',
-            message: 'Youtube playlist name: '
+            message: 'Youtube playlist name (case sensitive): '
         },
     ];
 
     inquirer.prompt(question)
         .then(answer => {
-            checkPlaylistName(playlistNames, answer);
+            checkPlaylistName(playlistNames, answer, namesAndIds);
         })
         .catch(err => {
             console.log(err);
@@ -104,28 +75,40 @@ async function getChannelPlaylists(id) {
 }
 
 // check if playlist already exists
-function checkPlaylistName(playlistNames, userInput) {
-    if (!playlistNames.indexOf(userInput)) {
+function checkPlaylistName(playlistNames, userInput, namesAndIds) {
+
+    const { youtubePlaylistName } = userInput;
+
+    if (!playlistNames.includes(youtubePlaylistName)) {
         console.log('There is no playlist with that name.');
         console.log('Exiting...');
-        // process.exit(0);
+        process.exit(0);
 
     } else {
-        // call a function to get all the items in an userInput playlist
-        console.log('Its good');
+        playlistItems(youtubePlaylistName, namesAndIds);
+        console.log('Success.');
     }
 };
 
+async function playlistItems(youtubePlaylistName, namesAndIds) {
+    const playlistId = namesAndIds[youtubePlaylistName].toString();
+    // console.log(playlistId);
+
+    const res = await axios.get(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&key=${process.env.YOUTUBE_KEY}`);
 
 
-async function playlistItems() {
-    const res = await axios.get(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=PL8kBmqk1msBzPRolbW6PHWITeguk2rQDU&key=${process.env.YOUTUBE_KEY}`);
-
-    // console.log(res.data.items[0].snippet.title);
-
+    // VIDEO TITLE
     res.data.items.forEach(item => {
-        console.log(item.snippet.title);
+        console.log('TITLE', item.snippet.title);
+        // extract artist name and song name
+        // call spotify tracks api
     })
+
+
+    // VIDEO ID
+    // res.data.items.forEach(item => {
+    //     console.log(item.snippet.resourceId.videoId);
+    // });
 
 }
 
