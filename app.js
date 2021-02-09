@@ -77,23 +77,57 @@ async function callApi(username) {
 async function getChannelPlaylists(id) {
     const res = await axios.get(`https://www.googleapis.com/youtube/v3/playlists?access_token=${process.env.GOOGLE_ACCESS_TOKEN}&part=snippet&channelId=${id}`)
 
-    console.log(res.data.items);
+    const playlistNames = res.data.items.map(item => {
+        return item.snippet.title;
+    });
+
+    const playlistIds = res.data.items.map(item => {
+        return item.id;
+    });
+
+    let question = [
+        {
+            type: 'input',
+            name: 'youtubePlaylistName',
+            message: 'Youtube playlist name: '
+        },
+    ];
+
+    inquirer.prompt(question)
+        .then(answer => {
+            checkPlaylistName(playlistNames, answer);
+        })
+        .catch(err => {
+            console.log(err);
+        })
+
 }
 
-// const YOUTUBE_PLAYLIST_ITEMS_API = 'https://www.googleapis.com/youtube/v3/playlistItems';
+// check if playlist already exists
+function checkPlaylistName(playlistNames, userInput) {
+    if (!playlistNames.indexOf(userInput)) {
+        console.log('There is no playlist with that name.');
+        console.log('Exiting...');
+        // process.exit(0);
+
+    } else {
+        // call a function to get all the items in an userInput playlist
+        console.log('Its good');
+    }
+};
 
 
-// async function callApi() {
-//     const res = await axios.get(`${ YOUTUBE_PLAYLIST_ITEMS_API }?part = snippet & maxResults=50 & playlistId=PL8kBmqk1msBzPRolbW6PHWITeguk2rQDU & key=${ process.env.YOUTUBE_KEY } `)
 
-//     // console.log(res.data.items[0].snippet.title);
+async function playlistItems() {
+    const res = await axios.get(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=PL8kBmqk1msBzPRolbW6PHWITeguk2rQDU&key=${process.env.YOUTUBE_KEY}`);
 
-//     res.data.items.forEach(item => {
-//         console.log(item.snippet.title);
-//     })
+    // console.log(res.data.items[0].snippet.title);
 
-// }
-// callApi();
+    res.data.items.forEach(item => {
+        console.log(item.snippet.title);
+    })
+
+}
 
 // create a playlist
 async function createPlaylist() {
