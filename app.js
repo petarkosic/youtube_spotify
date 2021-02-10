@@ -13,16 +13,6 @@ let question = [
         name: 'username',
         message: 'Your youtube username: '
     },
-    // {
-    //     type: 'input',
-    //     name: 'youtubePlaylistName',
-    //     message: 'Youtube playlist name: '
-    // },
-    // {
-    //     type: 'input',
-    //     name: 'spotifyPlaylistName',
-    //     message: 'Spotify playlist name: '
-    // },
 ];
 
 inquirer.prompt(question)
@@ -97,17 +87,31 @@ async function playlistItems(youtubePlaylistName, namesAndIds) {
 
     const res = await axios.get(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&key=${process.env.YOUTUBE_KEY}`);
 
+    let question = [
+        {
+            type: 'input',
+            name: 'spotifyPlaylistName',
+            message: 'Spotify playlist name: '
+        },
+    ];
+
+    inquirer.prompt(question)
+        .then(answer => {
+            const { spotifyPlaylistName } = answer;
+            checkSpotifyPlaylistName(spotifyPlaylistName);
+        })
+        .catch(err => {
+            console.log(err);
+        })
 
     // VIDEO TITLE
     res.data.items.forEach(item => {
         let [artist, title] = getArtistTitle(item.snippet.title);
-        console.log(artist);
-        // console.log(title);
 
-        console.log(removeFromTitle(title));
+        const songTitle = removeFromTitle(title);
 
-        // extract artist name and song name
-        // call spotify tracks api
+        getSpotifySong(artist, songTitle)
+
     })
 
     // VIDEO ID
@@ -117,13 +121,38 @@ async function playlistItems(youtubePlaylistName, namesAndIds) {
 
 }
 
+// check if playlist already exists
+async function checkSpotifyPlaylistName(spotifyPlaylistName) {
+    let currentPlaylists = await listCurrentUsersPlaylists();
+
+    console.log(typeof currentPlaylists);
+    console.log(currentPlaylists);
+
+
+    if (currentPlaylists.includes(spotifyPlaylistName)) {
+        console.log('Playlist with that name already exists.');
+        console.log('Exiting...');
+        process.exit(0);
+    } else {
+        createPlaylist(spotifyPlaylistName);
+        console.log(`Spotify playlist ${spotifyPlaylistName} created.`);
+    }
+
+};
+
+// get spotify song
+async function getSpotifySong(artist, songTitle) {
+    // call the tracks api
+};
+
+
 // create a playlist
-async function createPlaylist() {
+async function createPlaylist(spotifyPlaylistName) {
 
     try {
 
         let requestBody = {
-            "name": "YT Likes",
+            "name": `${spotifyPlaylistName}`,
             "description": "Youtube Playlist",
             "public": false
         };
@@ -162,9 +191,11 @@ async function listCurrentUsersPlaylists() {
         })
 
         const playlistNames = await req.data.items.map(item => {
-            console.log(item.name);
+            // console.log(item.name);
+            return item.name;
         })
 
+        return playlistNames;
         // console.log(req.data.items);
 
     } catch (err) {
@@ -172,7 +203,7 @@ async function listCurrentUsersPlaylists() {
     }
 };
 
-// listCurrentUsersPlaylists();
+listCurrentUsersPlaylists();
 
 app.listen(PORT, (req, res) => {
     console.log(`Server listening on port ${PORT}`);
