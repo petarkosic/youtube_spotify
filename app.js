@@ -5,6 +5,7 @@ const PORT = process.env.PORT || 5000;
 const app = express();
 
 const inquirer = require('inquirer');
+const getArtistTitle = require('get-artist-title');
 
 let question = [
     {
@@ -99,11 +100,15 @@ async function playlistItems(youtubePlaylistName, namesAndIds) {
 
     // VIDEO TITLE
     res.data.items.forEach(item => {
-        console.log('TITLE', item.snippet.title);
+        let [artist, title] = getArtistTitle(item.snippet.title);
+        console.log(artist);
+        // console.log(title);
+
+        console.log(removeFromTitle(title));
+
         // extract artist name and song name
         // call spotify tracks api
     })
-
 
     // VIDEO ID
     // res.data.items.forEach(item => {
@@ -172,3 +177,13 @@ async function listCurrentUsersPlaylists() {
 app.listen(PORT, (req, res) => {
     console.log(`Server listening on port ${PORT}`);
 });
+
+
+function removeFromTitle(title) {
+    return title
+        .replace(/\|/, '') // escape pipe symbol
+        .replace(/\(original mix\)/i, '') // original mix
+        .replace(/\s*\(?(of+icial\s*)?audio\)?/i, '') // official audio
+        .replace(/\(house\)/i, '') // (house)
+        .replace(/\s*[a-z]*\s*\brecords$/i, ''); // (some word) records
+}
