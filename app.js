@@ -125,18 +125,18 @@ async function playlistItems(youtubePlaylistName, namesAndIds) {
 async function checkSpotifyPlaylistName(spotifyPlaylistName) {
     let currentPlaylists = await listCurrentUsersPlaylists();
 
-    console.log(typeof currentPlaylists);
-    console.log(currentPlaylists);
-
+    let playlistId;
 
     if (currentPlaylists.includes(spotifyPlaylistName)) {
         console.log('Playlist with that name already exists.');
         console.log('Exiting...');
         process.exit(0);
     } else {
-        createPlaylist(spotifyPlaylistName);
+        playlistId = await createPlaylist(spotifyPlaylistName);
         console.log(`Spotify playlist ${spotifyPlaylistName} created.`);
     }
+
+    return playlistId;
 
 };
 
@@ -166,8 +166,7 @@ async function createPlaylist(spotifyPlaylistName) {
             }
         });
 
-        return req;
-        // const { status, statusText, config: { url, data }, data: { id, description, href, name } } = req;
+        return req.data.id;
 
     } catch (err) {
         console.log(err);
@@ -175,13 +174,11 @@ async function createPlaylist(spotifyPlaylistName) {
 
 }
 
-// createPlaylist();
-
 // get a list of the playlists owned or followed by the current Spotify user.
 async function listCurrentUsersPlaylists() {
     try {
 
-        let query = `https://api.spotify.com/v1/me/playlists?limit=50&offset=0`;
+        let query = `https://api.spotify.com/v1/users/${process.env.USER_ID}/playlists?limit=50&offset=0`;
 
         let req = await axios.get(query, {
             headers: {
@@ -203,7 +200,11 @@ async function listCurrentUsersPlaylists() {
     }
 };
 
-listCurrentUsersPlaylists();
+// add song to playlist
+async function addSongToPlaylist(playlistId, songsToAdd = getSpotifySong()) {
+    // add songs from a youtube playlist to spotify playlist with a given id
+};
+
 
 app.listen(PORT, (req, res) => {
     console.log(`Server listening on port ${PORT}`);
