@@ -96,9 +96,10 @@ async function playlistItems(youtubePlaylistName, namesAndIds) {
     ];
 
     inquirer.prompt(question)
-        .then(answer => {
+        .then(async answer => {
             const { spotifyPlaylistName } = answer;
             checkSpotifyPlaylistName(spotifyPlaylistName);
+            await createPlaylist(spotifyPlaylistName);
         })
         .catch(err => {
             console.log(err);
@@ -110,7 +111,7 @@ async function playlistItems(youtubePlaylistName, namesAndIds) {
 
         const songTitle = removeFromTitle(title);
 
-        getSpotifySong(artist, songTitle)
+        getSpotifySong(artist.trim(), songTitle.trim());
 
     })
 
@@ -125,24 +126,41 @@ async function playlistItems(youtubePlaylistName, namesAndIds) {
 async function checkSpotifyPlaylistName(spotifyPlaylistName) {
     let currentPlaylists = await listCurrentUsersPlaylists();
 
-    let playlistId;
+    // let playlistId;
 
     if (currentPlaylists.includes(spotifyPlaylistName)) {
         console.log('Playlist with that name already exists.');
         console.log('Exiting...');
         process.exit(0);
     } else {
-        playlistId = await createPlaylist(spotifyPlaylistName);
+        // playlistId = await createPlaylist(spotifyPlaylistName);
         console.log(`Spotify playlist ${spotifyPlaylistName} created.`);
     }
 
-    return playlistId;
+    // return playlistId;
 
 };
 
 // get spotify song
 async function getSpotifySong(artist, songTitle) {
     // call the tracks api
+    try {
+
+        let query = `https://api.spotify.com/v1/search?q=${songTitle}&artist=${artist}&type=track&offset=0&limit=20`;
+
+        let req = await axios.get(query, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${process.env.USER_TOKEN}`
+            }
+        });
+
+
+        return req.data.tracks.items[0].uri;
+
+    } catch (err) {
+        console.log(err);
+    }
 };
 
 
