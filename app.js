@@ -87,33 +87,51 @@ async function playlistItems(youtubePlaylistName, namesAndIds) {
 
     const res = await axios.get(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&key=${process.env.YOUTUBE_KEY}`);
 
-    let question = [
-        {
-            type: 'input',
-            name: 'spotifyPlaylistName',
-            message: 'Spotify playlist name: '
-        },
-    ];
-
-    inquirer.prompt(question)
-        .then(async answer => {
-            const { spotifyPlaylistName } = answer;
-            checkSpotifyPlaylistName(spotifyPlaylistName);
-            await createPlaylist(spotifyPlaylistName);
-        })
-        .catch(err => {
-            console.log(err);
-        })
 
     // VIDEO TITLE
-    res.data.items.forEach(item => {
+    res.data.items.forEach(async item => {
         let [artist, title] = getArtistTitle(item.snippet.title);
 
         const songTitle = removeFromTitle(title);
 
-        getSpotifySong(artist.trim(), songTitle.trim());
+        // await createPlaylist();
 
+        // await getSpotifySong(artist, songTitle);
+
+        await addSongToPlaylist(await createPlaylist(), await getSpotifySong(artist, songTitle))
     })
+
+    // let question = [
+    //     {
+    //         type: 'input',
+    //         name: 'spotifyPlaylistName',
+    //         message: 'Spotify playlist name: '
+    //     },
+    // ];
+
+    // inquirer.prompt(question)
+    //     .then(async answer => {
+    //         const { spotifyPlaylistName } = answer;
+    //         await checkSpotifyPlaylistName(spotifyPlaylistName);
+    //     })
+
+
+    // let spotifyPlaylistId;
+
+    // inquirer.prompt(question)
+    //     .then(async answer => {
+    //         const { spotifyPlaylistName } = answer;
+    //         spotifyPlaylistId = await checkSpotifyPlaylistName(spotifyPlaylistName);
+    //         // await createPlaylist(spotifyPlaylistName);
+    //         // const titles = songTitles;
+    //         return spotifyPlaylistId
+    //         // await addSongToPlaylist(spotifyPlaylistId, songHref);
+    //     })
+    //     .catch(err => {
+    //         console.log(err);
+    //     })
+
+    // await addSongToPlaylist(spotifyPlaylistName, songTitles);
 
     // VIDEO ID
     // res.data.items.forEach(item => {
@@ -136,8 +154,7 @@ async function checkSpotifyPlaylistName(spotifyPlaylistName) {
         // playlistId = await createPlaylist(spotifyPlaylistName);
         console.log(`Spotify playlist ${spotifyPlaylistName} created.`);
     }
-
-    // return playlistId;
+    // return spotifyPlaylistName
 
 };
 
@@ -145,7 +162,6 @@ async function checkSpotifyPlaylistName(spotifyPlaylistName) {
 async function getSpotifySong(artist, songTitle) {
     // call the tracks api
     try {
-
         let query = `https://api.spotify.com/v1/search?q=${songTitle}&artist=${artist}&type=track&offset=0&limit=20`;
 
         let req = await axios.get(query, {
@@ -155,8 +171,7 @@ async function getSpotifySong(artist, songTitle) {
             }
         });
 
-
-        return req.data.tracks.items[0].uri;
+        return Array.from(req.data.tracks.items[0].uri).join('');
 
     } catch (err) {
         console.log(err);
@@ -165,12 +180,12 @@ async function getSpotifySong(artist, songTitle) {
 
 
 // create a playlist
-async function createPlaylist(spotifyPlaylistName) {
+async function createPlaylist() {
 
     try {
 
         let requestBody = {
-            "name": `${spotifyPlaylistName}`,
+            "name": 'Youtube Playlist',
             "description": "Youtube Playlist",
             "public": false
         };
@@ -219,8 +234,30 @@ async function listCurrentUsersPlaylists() {
 };
 
 // add song to playlist
-async function addSongToPlaylist(playlistId, songsToAdd = getSpotifySong()) {
-    // add songs from a youtube playlist to spotify playlist with a given id
+async function addSongToPlaylist(playlistId, songsToAdd) {
+
+    try {
+        // add songs from a youtube playlist to spotify playlist with a given id
+        // let uris = await songsToAdd
+
+        // console.log(uris);
+        let query = `https://api.spotify.com/v1/playlists/${playlistId}/tracks?uris=${songsToAdd}`;
+        // let query = `https://api.spotify.com/v1/playlists/${playlistId}/tracks`;
+
+        // console.log(query);
+
+        let req = await axios.post(query, songsToAdd, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${process.env.USER_TOKEN}`
+            }
+        });
+
+        return req;
+
+    } catch (err) {
+        console.log(err)
+    }
 };
 
 
