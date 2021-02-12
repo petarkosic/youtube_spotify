@@ -87,6 +87,7 @@ async function playlistItems(youtubePlaylistName, namesAndIds) {
 
     const res = await axios.get(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&key=${process.env.YOUTUBE_KEY}`);
 
+    const playlist = await createPlaylist();
 
     // VIDEO TITLE
     res.data.items.forEach(async item => {
@@ -96,9 +97,9 @@ async function playlistItems(youtubePlaylistName, namesAndIds) {
 
         // await createPlaylist();
 
-        // await getSpotifySong(artist, songTitle);
+        const songs = await getSpotifySong(artist, songTitle);
 
-        await addSongToPlaylist(await createPlaylist(), await getSpotifySong(artist, songTitle))
+        await addSongToPlaylist(playlist, songs)
     })
 
     // let question = [
