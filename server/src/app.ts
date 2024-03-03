@@ -285,7 +285,7 @@ config();
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 let REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:5000/callback';
-let FRONTEND_URI = process.env.FRONTEND_URI || 'http://localhost:5173';
+let FRONTEND_URI = process.env.FRONTEND_URI || 'http://localhost:3000';
 const PORT = process.env.PORT || 5000;
 
 import express from 'express';
@@ -313,7 +313,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use((req, res, next) => {
-	res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
+	res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
 	res.setHeader(
 		'Access-Control-Allow-Methods',
 		'GET, POST, OPTIONS, PUT, PATCH, DELETE'
@@ -338,6 +338,7 @@ app.get('/login', function (req, res) {
 		response_type: 'code',
 		redirect_uri: REDIRECT_URI,
 		scope: scope,
+		state: state,
 		show_dialog: 'true', // debug and testing purposes only
 	};
 
@@ -349,8 +350,9 @@ app.get('/login', function (req, res) {
 
 app.get('/callback', async function (req, res) {
 	const code = req.query.code || null;
+	const state = req.query.state || null;
 
-	if (!code) {
+	if (!code || state === null) {
 		res.status(400).json({ error: 'Authorization code not found' });
 		return;
 	}
