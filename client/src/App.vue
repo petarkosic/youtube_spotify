@@ -18,15 +18,20 @@ const accessToken = ref<string>(
 const EXPIRATION_TIME = 60 * 60 * 1000; // 1 hour in milliseconds
 
 const refreshToken = async () => {
+	let refreshTokenFromStorage = localStorage.getItem('spotify_refresh_token');
+
+	if (!refreshTokenFromStorage) {
+		console.error('No refresh token found in local storage');
+		return;
+	}
+
 	try {
 		const response = await axios.get(
-			`http://localhost:5000/refresh_token?refresh_token=${refreshToken}`
+			`http://localhost:5000/spotify/refresh_token?refresh_token=${refreshTokenFromStorage}`
 		);
 		const { access_token } = response.data;
 
 		accessToken.value = access_token;
-
-		console.log('New access token:', access_token);
 
 		localStorage.setItem('spotify_access_token', access_token);
 	} catch (error) {
@@ -55,7 +60,7 @@ onMounted(() => {
 
 const login = async () => {
 	try {
-		const response = await axios.get('http://localhost:5000/login');
+		const response = await axios.get('http://localhost:5000/spotify/login');
 		window.location.href = response.data.redirect_url; // Redirect to Spotify authorization page
 	} catch (error) {
 		console.error('Error during login:', error);

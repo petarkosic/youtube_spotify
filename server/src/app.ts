@@ -282,26 +282,12 @@
 import { config } from 'dotenv';
 config();
 
-const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
-const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
-let REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:5000/callback';
 let FRONTEND_URI = process.env.FRONTEND_URI || 'http://localhost:3000';
 const PORT = process.env.PORT || 5000;
 
 import express from 'express';
-import axios from 'axios';
 import cors from 'cors';
-import qs from 'qs';
-
-const generateRandomString = (length: any) => {
-	let text = '';
-	const possible =
-		'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	for (let i = 0; i < length; i++) {
-		text += possible.charAt(Math.floor(Math.random() * possible.length));
-	}
-	return text;
-};
+import spotifyAuthRoutes from './routes/spotifyAuthRoutes';
 
 const app = express();
 
@@ -312,104 +298,12 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use((req, res, next) => {
-	res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-	res.setHeader(
-		'Access-Control-Allow-Methods',
-		'GET, POST, OPTIONS, PUT, PATCH, DELETE'
-	);
-	res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-	res.setHeader('Access-Control-Allow-Credentials', 'true');
-	next();
-});
 
 app.get('/', function (req: any, res: any) {
 	res.json({ message: 'hello' });
 });
 
-app.get('/login', function (req, res) {
-	const state = generateRandomString(16);
-
-	const scope =
-		'playlist-modify-private playlist-modify-public playlist-read-private playlist-read-collaborative user-read-email user-read-private';
-
-	const params = {
-		client_id: SPOTIFY_CLIENT_ID,
-		response_type: 'code',
-		redirect_uri: REDIRECT_URI,
-		scope: scope,
-		state: state,
-		show_dialog: 'true', // debug and testing purposes only
-	};
-
-	let auth_url =
-		'https://accounts.spotify.com/authorize?' + qs.stringify(params);
-
-	res.json({ redirect_url: auth_url });
-});
-
-app.get('/callback', async function (req, res) {
-	const code = req.query.code || null;
-	const state = req.query.state || null;
-
-	if (!code || state === null) {
-		res.status(400).json({ error: 'Authorization code not found' });
-		return;
-	}
-
-	try {
-		const response = await axios.post(
-			'https://accounts.spotify.com/api/token',
-			qs.stringify({
-				grant_type: 'authorization_code',
-				code: code,
-				redirect_uri: REDIRECT_URI,
-			}),
-			{
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-					Authorization: `Basic ${Buffer.from(
-						`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`
-					).toString('base64')}`,
-				},
-			}
-		);
-
-		const { access_token, refresh_token } = response.data;
-
-		res.redirect(
-			`${FRONTEND_URI}?access_token=${access_token}&refresh_token=${refresh_token}`
-		);
-	} catch (error) {
-		res.status(500).json({ error: 'Failed to get tokens' });
-	}
-});
-
-app.get('/refresh_token', async function (req, res) {
-	const refresh_token = req.query.refresh_token;
-
-	try {
-		const response = await axios.post(
-			'https://accounts.spotify.com/api/token',
-			qs.stringify({
-				grant_type: 'refresh_token',
-				refresh_token: refresh_token,
-			}),
-			{
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-					Authorization: `Basic ${Buffer.from(
-						`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`
-					).toString('base64')}`,
-				},
-			}
-		);
-
-		res.json({ access_token: response.data.access_token });
-	} catch (error) {
-		res.status(500).json({ error: 'Failed to get tokens' });
-	}
-});
+app.use('/spotify', spotifyAuthRoutes);
 
 app.listen(PORT, function () {
 	console.warn(`Listening on port ${PORT}`);
