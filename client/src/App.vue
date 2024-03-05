@@ -3,6 +3,9 @@
 		<button v-if="accessToken" @click="logout">Logout</button>
 		<playlists v-if="accessToken" :accessToken="accessToken" />
 		<button v-else @click="login">Login with Spotify</button>
+		<div v-if="authCancelledError" style="color: red">
+			{{ authCancelledError }}
+		</div>
 	</div>
 </template>
 
@@ -14,6 +17,8 @@ import Playlists from './components/Playlists.vue';
 const accessToken = ref<string>(
 	localStorage.getItem('spotify_access_token') || ''
 );
+
+const authCancelledError = ref<string>('');
 
 const EXPIRATION_TIME = 60 * 60 * 1000; // 1 hour in milliseconds
 
@@ -51,6 +56,7 @@ const checkTokenExpiration = () => {
 };
 
 onMounted(() => {
+	checkTokenExpiration();
 	const intervalId = setInterval(checkTokenExpiration, 60 * 60 * 1000);
 
 	return () => {
@@ -67,7 +73,7 @@ const login = async () => {
 	}
 };
 
-const handleCallback = () => {
+const handleCallback = async () => {
 	try {
 		const urlParams = new URLSearchParams(window.location.search);
 		const access_token = urlParams.get('access_token');
@@ -78,6 +84,11 @@ const handleCallback = () => {
 			localStorage.setItem('spotify_access_token', access_token);
 			localStorage.setItem('spotify_refresh_token', refresh_token);
 			localStorage.setItem('spotify_token_expiration_time', String(Date.now()));
+		} else if (urlParams.get('error') === 'access_denied') {
+			authCancelledError.value = 'User cancelled authorization';
+			setTimeout(() => {
+				authCancelledError.value = '';
+			}, 5000);
 		}
 
 		window.history.pushState('', '', '/'); // Clear the URL

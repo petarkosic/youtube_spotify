@@ -23,8 +23,13 @@ class SpotifyAuthController {
 		const code = req.query.code as string;
 
 		if (!code) {
-			res.status(400).json({ error: 'Authorization code not found' });
-			return;
+			if (req.query.error === 'access_denied') {
+				return res
+					.status(403)
+					.redirect(`${this.spotifyService.FRONTEND_URI}/?error=access_denied`);
+			} else {
+				return res.status(400).json({ error: 'Authorization code not found' });
+			}
 		}
 
 		try {
