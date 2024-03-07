@@ -288,6 +288,7 @@ const PORT = process.env.PORT || 5000;
 import express from 'express';
 import cors from 'cors';
 import spotifyAuthRoutes from './routes/spotifyAuthRoutes';
+import googleAuthRoutes from './routes/googleAuthRoutes';
 
 const app = express();
 
@@ -304,6 +305,7 @@ app.get('/', function (req: any, res: any) {
 });
 
 app.use('/spotify', spotifyAuthRoutes);
+app.use('/google', googleAuthRoutes);
 
 app.listen(PORT, function () {
 	console.warn(`Listening on port ${PORT}`);
