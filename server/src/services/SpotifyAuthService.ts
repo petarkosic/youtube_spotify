@@ -4,7 +4,7 @@ import qs from 'qs';
 export class SpotifyAuthService {
 	SPOTIFY_CLIENT_ID: string;
 	SPOTIFY_CLIENT_SECRET: string;
-	REDIRECT_URI: string;
+	SPOTIFY_REDIRECT_URI: string;
 	FRONTEND_URI: string;
 	SPOTIFY_AUTH_URL: string;
 	SPOTIFY_TOKEN_URL: string;
@@ -12,8 +12,9 @@ export class SpotifyAuthService {
 	constructor() {
 		this.SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID || '';
 		this.SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET || '';
-		this.REDIRECT_URI =
-			process.env.REDIRECT_URI || 'http://localhost:5000/callback';
+		this.SPOTIFY_REDIRECT_URI =
+			process.env.SPOTIFY_REDIRECT_URI ||
+			'http://localhost:5000/spotify/callback';
 		this.FRONTEND_URI = process.env.FRONTEND_URI || 'http://localhost:3000';
 		this.SPOTIFY_AUTH_URL = process.env.SPOTIFY_AUTH_URL || '';
 		this.SPOTIFY_TOKEN_URL = process.env.SPOTIFY_TOKEN_URL || '';
@@ -38,7 +39,7 @@ export class SpotifyAuthService {
 		const params = {
 			client_id: this.SPOTIFY_CLIENT_ID,
 			response_type: 'code',
-			redirect_uri: this.REDIRECT_URI,
+			redirect_uri: this.SPOTIFY_REDIRECT_URI,
 			scope: scope,
 			state: state,
 			show_dialog: 'true', // debug and testing purposes only
@@ -56,7 +57,7 @@ export class SpotifyAuthService {
 				qs.stringify({
 					grant_type: 'authorization_code',
 					code: code,
-					redirect_uri: this.REDIRECT_URI,
+					redirect_uri: this.SPOTIFY_REDIRECT_URI,
 				}),
 				{
 					headers: {

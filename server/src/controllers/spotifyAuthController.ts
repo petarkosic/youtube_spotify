@@ -36,7 +36,7 @@ class SpotifyAuthController {
 			const tokens = await this.spotifyService.handleCallback(code);
 
 			res.redirect(
-				`${this.spotifyService.FRONTEND_URI}?access_token=${tokens.access_token}&refresh_token=${tokens.refresh_token}`
+				`${this.spotifyService.FRONTEND_URI}?spotify_access_token=${tokens.access_token}&spotify_refresh_token=${tokens.refresh_token}`
 			);
 		} catch (error) {
 			console.error(error);

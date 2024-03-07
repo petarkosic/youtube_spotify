@@ -49,7 +49,10 @@ const checkTokenExpiration = () => {
 		localStorage.getItem('spotify_token_expiration_time')
 	);
 
-	if (Date.now() - tokenExpirationTime > EXPIRATION_TIME) {
+	if (
+		tokenExpirationTime &&
+		Date.now() - tokenExpirationTime > EXPIRATION_TIME
+	) {
 		console.log('Token has expired, refreshing...');
 		refreshToken();
 	}
@@ -76,8 +79,8 @@ const login = async () => {
 const handleCallback = async () => {
 	try {
 		const urlParams = new URLSearchParams(window.location.search);
-		const access_token = urlParams.get('access_token');
-		const refresh_token = urlParams.get('refresh_token');
+		const access_token = urlParams.get('spotify_access_token');
+		const refresh_token = urlParams.get('spotify_refresh_token');
 
 		if (access_token && refresh_token) {
 			accessToken.value = access_token;
