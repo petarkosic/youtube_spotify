@@ -1,10 +1,12 @@
 <template>
 	<div class="container">
+		<Google />
 		<Spotify />
 	</div>
 </template>
 
 <script lang="ts" setup>
+import Google from './components/Google.vue';
 import Spotify from './components/Spotify.vue';
 </script>
 
