@@ -1,13 +1,17 @@
 <template>
 	<div class="container">
+		<Intro />
 		<Google />
-		<Spotify />
+		<!-- <div class="card" v-if="token">
+			<Spotify />
+		</div> -->
 	</div>
 </template>
 
 <script lang="ts" setup>
+import Intro from './components/Intro.vue';
 import Google from './components/Google.vue';
-import Spotify from './components/Spotify.vue';
+// import Spotify from './components/Spotify.vue';
 </script>
 
 <style scoped>

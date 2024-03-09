@@ -1,10 +1,29 @@
 <template>
 	<div>
+		<div v-if="loading">Loading playlist items</div>
+		<div v-if="!loading && playlistItems.length">
+			Playlist items loaded: {{ playlistItems.length }} items
+		</div>
+
 		<ul>
-			<li v-for="playlist in playlists" :key="playlist.id">
+			<li
+				v-for="playlist in playlists"
+				:key="playlist.id"
+				@click="selectPlaylist(playlist.id)"
+			>
 				<div>{{ playlist.snippet.title }}</div>
+				<button
+					v-if="selectedPlaylist === playlist.id"
+					@click="getPlaylistItems(playlist.id)"
+				>
+					&gt;
+				</button>
 			</li>
 		</ul>
+	</div>
+
+	<div v-if="playlistItems.length !== 0">
+		<button>Login to Spotify</button>
 	</div>
 </template>
 
@@ -64,6 +83,9 @@ interface Playlist {
 }
 
 const playlists = ref<Playlist[]>([]);
+const selectedPlaylist = ref('');
+const playlistItems = ref<any[]>([]);
+const loading = ref<boolean>(false);
 
 const getChannel = async () => {
 	try {
@@ -103,9 +125,59 @@ const getPlaylists = async (channelId: number) => {
 			}
 		);
 
-		playlists.value = response.data.items!;
+		playlists.value = response.data.items;
 	} catch (error) {
 		console.error('Error fetching playlists:', error);
+	}
+};
+
+const selectPlaylist = (playlistId: string) => {
+	selectedPlaylist.value = playlistId;
+};
+
+const getPlaylistItems = async (playlistId: string) => {
+	try {
+		loading.value = true;
+		let nextPageToken = '';
+		const allItems = [];
+
+		do {
+			const response = await axios.get(
+				'https://www.googleapis.com/youtube/v3/playlistItems',
+				{
+					params: {
+						part: 'snippet',
+						playlistId: playlistId,
+						maxResults: 50,
+						pageToken: nextPageToken,
+					},
+					headers: {
+						Authorization: `Bearer ${props.accessToken}`,
+					},
+				}
+			);
+
+			if (response.status === 200) {
+				const items = response.data.items
+					.map((item: any) => item.snippet.title)
+					.filter(
+						(item: any) =>
+							item.toLowerCase() !== 'private video' &&
+							item.toLowerCase() !== 'deleted video'
+					);
+
+				allItems.push(...items);
+				nextPageToken = response.data.nextPageToken;
+			} else {
+				throw new Error('Failed to get playlist items');
+			}
+		} while (nextPageToken);
+
+		playlistItems.value = allItems;
+	} catch (error) {
+		console.error('Error checking items:', error);
+	} finally {
+		loading.value = false;
 	}
 };
 
