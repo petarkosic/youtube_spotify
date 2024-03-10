@@ -39,6 +39,7 @@ const refreshToken = async () => {
 
 		accessToken.value = access_token;
 		localStorage.setItem('google_access_token', access_token);
+		localStorage.setItem('google_token_expiration_time', String(Date.now()));
 	} catch (error) {
 		console.error('Error refreshing token:', error);
 	}

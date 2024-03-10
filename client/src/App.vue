@@ -1,17 +1,20 @@
 <template>
 	<div class="container">
 		<Intro />
-		<Google />
-		<!-- <div class="card" v-if="token">
-			<Spotify />
-		</div> -->
+		<Google v-if="!showSpotifyLogin" />
+		<Spotify v-if="showSpotifyLogin" />
 	</div>
 </template>
 
 <script lang="ts" setup>
 import Intro from './components/Intro.vue';
 import Google from './components/Google.vue';
-// import Spotify from './components/Spotify.vue';
+import Spotify from './components/Spotify.vue';
+import { ref } from 'vue';
+
+const showSpotifyLogin = ref<boolean>(
+	Boolean(localStorage.getItem('showSpotifyLogin')) || false
+);
 </script>
 
 <style scoped>

@@ -39,6 +39,7 @@ const refreshToken = async () => {
 		accessToken.value = access_token;
 
 		localStorage.setItem('spotify_access_token', access_token);
+		localStorage.setItem('spotify_token_expiration_time', String(Date.now()));
 	} catch (error) {
 		console.error('Error refreshing token:', error);
 	}
@@ -70,7 +71,8 @@ onMounted(() => {
 const login = async () => {
 	try {
 		const response = await axios.get('http://localhost:5000/spotify/login');
-		window.location.href = response.data.redirect_url; // Redirect to Spotify authorization page
+
+		window.location.href = response.data.redirect_url;
 	} catch (error) {
 		console.error('Error during login:', error);
 	}
@@ -104,6 +106,7 @@ const logout = () => {
 	localStorage.removeItem('spotify_access_token');
 	localStorage.removeItem('spotify_refresh_token');
 	localStorage.removeItem('spotify_token_expiration_time');
+	window.location.reload();
 	accessToken.value = '';
 };
 

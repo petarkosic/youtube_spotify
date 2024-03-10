@@ -23,13 +23,18 @@
 	</div>
 
 	<div v-if="playlistItems.length !== 0">
-		<button>Login to Spotify</button>
+		<button @click="showSpotifyComponent">Login to Spotify</button>
 	</div>
 </template>
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+
+const showSpotifyComponent = () => {
+	localStorage.setItem('showSpotifyLogin', 'true');
+	window.location.reload();
+};
 
 const props = defineProps({
 	accessToken: {
