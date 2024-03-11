@@ -1,5 +1,6 @@
 <template>
 	<div class="card card-spotify">
+		<button @click="goBack">&lt;</button>
 		<button v-if="accessToken" @click="logout">Logout</button>
 		<Playlists v-if="accessToken" :accessToken="accessToken" />
 		<button v-else @click="login">Login to Spotify</button>
@@ -100,6 +101,11 @@ const handleCallback = async () => {
 	} catch (error) {
 		console.error('Error during callback:', error);
 	}
+};
+
+const goBack = () => {
+	localStorage.removeItem('showSpotifyLogin');
+	window.location.reload();
 };
 
 const logout = () => {

@@ -124,6 +124,7 @@ const getPlaylists = async (channelId: number) => {
 				params: {
 					part: 'snippet',
 					channelId: channelId,
+					maxResults: 50,
 				},
 				headers: {
 					Authorization: `Bearer ${props.accessToken}`,
