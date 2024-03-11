@@ -9,7 +9,7 @@
 			<li
 				v-for="playlist in playlists"
 				:key="playlist.id"
-				@click="selectPlaylist(playlist.id)"
+				@click="selectPlaylist(playlist)"
 			>
 				<div>{{ playlist.snippet.title }}</div>
 				<button
@@ -89,6 +89,7 @@ interface Playlist {
 
 const playlists = ref<Playlist[]>([]);
 const selectedPlaylist = ref('');
+const selectedPlaylistTitle = ref('');
 const playlistItems = ref<any[]>([]);
 const loading = ref<boolean>(false);
 
@@ -136,8 +137,25 @@ const getPlaylists = async (channelId: number) => {
 	}
 };
 
-const selectPlaylist = (playlistId: string) => {
-	selectedPlaylist.value = playlistId;
+const selectPlaylist = (playlist: any) => {
+	selectedPlaylist.value = playlist.id;
+	selectedPlaylistTitle.value = playlist.snippet.title;
+	localStorage.setItem('selectedPlaylist', playlist.snippet.title);
+};
+
+const sanitizeArtistAndTitle = (songs: string[]) => {
+	return songs.map((song: string) => {
+		if (!song.includes(' - ')) {
+			return { artist: '', songTitle: song };
+		}
+
+		const parts = song.split(' - ');
+
+		let artist = parts[0].trim();
+		let songTitle = parts[1].split('(')[0].trim();
+
+		return { artist, songTitle };
+	});
 };
 
 const getPlaylistItems = async (playlistId: string) => {
@@ -163,15 +181,15 @@ const getPlaylistItems = async (playlistId: string) => {
 			);
 
 			if (response.status === 200) {
-				const items = response.data.items
-					.map((item: any) => item.snippet.title)
+				const songs = response.data.items
+					.map((song: any) => song.snippet.title)
 					.filter(
-						(item: any) =>
-							item.toLowerCase() !== 'private video' &&
-							item.toLowerCase() !== 'deleted video'
+						(song: any) =>
+							song.toLowerCase() !== 'private video' &&
+							song.toLowerCase() !== 'deleted video'
 					);
 
-				allItems.push(...items);
+				allItems.push(...sanitizeArtistAndTitle(songs));
 				nextPageToken = response.data.nextPageToken;
 			} else {
 				throw new Error('Failed to get playlist items');
@@ -179,6 +197,8 @@ const getPlaylistItems = async (playlistId: string) => {
 		} while (nextPageToken);
 
 		playlistItems.value = allItems;
+
+		localStorage.setItem('playlistItems', JSON.stringify(playlistItems.value));
 	} catch (error) {
 		console.error('Error checking items:', error);
 	} finally {
