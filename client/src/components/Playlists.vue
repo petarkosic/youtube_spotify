@@ -1,6 +1,9 @@
 <template>
 	<div>
 		<h2>Your Playlists</h2>
+		<p v-if="searchedSongs !== 0">
+			{{ searchedSongs }} / {{ playlistItems.length }} songs searched
+		</p>
 		<ul>
 			<li v-for="playlist in playlists" :key="playlist.id">
 				{{ playlist.name }}
@@ -28,6 +31,7 @@ interface Playlist {
 const playlists = ref<Playlist[]>([]);
 const playlistTitle = ref(localStorage.getItem('selectedPlaylist'));
 const playlistItems = ref(JSON.parse(localStorage.getItem('playlistItems')!));
+const searchedSongs = ref(0);
 
 const playlistAlreadyExists = (playlists: Playlist[]) => {
 	const pl = playlists.find(
@@ -63,6 +67,7 @@ const getPlaylists = async () => {
 
 				const spotifySong = await getSpotifySong(artist, songTitle);
 				spotifySongsUrls.push(spotifySong);
+				searchedSongs.value++;
 			}
 
 			const playlistId = await createPlaylist();
@@ -78,7 +83,6 @@ const getPlaylists = async () => {
 				const end = (i + 1) * maxSongsPerRequest;
 				const songsToAdd = spotifySongsUrls.slice(start, end);
 				const songsToAddString = songsToAdd.join(',');
-				console.log('here');
 
 				await addSongToPlaylist(playlistId, songsToAddString);
 			}
@@ -115,7 +119,9 @@ async function getSpotifySong(artist: string, songTitle: string) {
 	// call the tracks api
 	try {
 		const response = await axios.get(
-			`https://api.spotify.com/v1/search?q=${songTitle}&artist=${artist}&type=track&offset=0&limit=10`,
+			`https://api.spotify.com/v1/search?q=${encodeURIComponent(
+				songTitle
+			)}&artist=${encodeURIComponent(artist)}&type=track&offset=0&limit=10`,
 			{
 				headers: {
 					'Content-Type': 'application/json',
