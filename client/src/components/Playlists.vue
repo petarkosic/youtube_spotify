@@ -116,11 +116,10 @@ const createPlaylist = async () => {
 
 // get spotify song
 async function getSpotifySong(artist: string, songTitle: string) {
-	// call the tracks api
 	try {
 		const response = await axios.get(
 			`https://api.spotify.com/v1/search?q=${encodeURIComponent(
-				songTitle
+				`${artist} ${songTitle}`
 			)}&artist=${encodeURIComponent(artist)}&type=track&offset=0&limit=10`,
 			{
 				headers: {

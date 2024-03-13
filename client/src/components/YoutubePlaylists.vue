@@ -155,6 +155,16 @@ const sanitizeArtistAndTitle = (songs: string[]) => {
 		let artist = parts[0].trim();
 		let songTitle = parts[1].split('(')[0].trim();
 
+		let openParenthesisIndex = parts[1].indexOf('(');
+		let closedParenthesisIndex = parts[1].indexOf(')');
+
+		if (
+			openParenthesisIndex !== -1 &&
+			/(remix|cover)/i.test(parts[1].substring(openParenthesisIndex))
+		) {
+			songTitle = parts[1].substring(0, closedParenthesisIndex + 1).trim();
+		}
+
 		return { artist, songTitle };
 	});
 };
