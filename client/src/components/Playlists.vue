@@ -15,6 +15,7 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import pMap from 'p-map';
 
 const props = defineProps({
 	accessToken: {
@@ -26,6 +27,11 @@ const props = defineProps({
 interface Playlist {
 	id: string;
 	name: string;
+}
+
+interface Song {
+	artist: string;
+	songTitle: string;
 }
 
 const playlists = ref<Playlist[]>([]);
@@ -57,18 +63,22 @@ const getPlaylists = async () => {
 		}
 
 		if (!playlistAlreadyExists(playlists.value)) {
-			// search for songs from youtube playlist
-			let spotifySongsUrls = [];
-			for (let song of playlistItems.value) {
-				let { artist, songTitle } = song;
-				if (artist === '' || songTitle === '') {
-					continue;
-				}
+			let spotifySongsUrls: (string | undefined)[] = [];
 
-				const spotifySong = await getSpotifySong(artist, songTitle);
-				spotifySongsUrls.push(spotifySong);
-				searchedSongs.value++;
-			}
+			await pMap(
+				playlistItems.value.reverse(),
+				async (song: Song) => {
+					const { artist, songTitle } = song;
+					if (artist === '' || songTitle === '') {
+						return;
+					}
+
+					const spotifySong = await getSpotifySong(artist, songTitle);
+					spotifySongsUrls.push(spotifySong);
+					searchedSongs.value++;
+				},
+				{ concurrency: 100 }
+			);
 
 			const playlistId = await createPlaylist();
 
