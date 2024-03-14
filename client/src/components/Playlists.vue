@@ -1,14 +1,17 @@
 <template>
-	<div>
+	<div class="spotify-playlists">
 		<h2>Your Playlists</h2>
 		<p v-if="searchedSongs !== 0">
 			{{ searchedSongs }} / {{ playlistItems.length }} songs searched
 		</p>
-		<ul>
-			<li v-for="playlist in playlists" :key="playlist.id">
-				{{ playlist.name }}
-			</li>
-		</ul>
+
+		<div class="playlists">
+			<ul>
+				<li v-for="playlist in playlists" :key="playlist.id">
+					{{ playlist.name }}
+				</li>
+			</ul>
+		</div>
 	</div>
 </template>
 
@@ -170,4 +173,32 @@ onMounted(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.spotify-playlists {
+	width: 80%;
+	display: flex;
+	flex-direction: column;
+}
+
+.playlist {
+	padding: 2rem;
+}
+
+ul {
+	list-style-type: none;
+	padding: 0;
+	width: 100%;
+	height: 70%;
+	overflow: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+}
+
+li {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 1rem;
+}
+</style>

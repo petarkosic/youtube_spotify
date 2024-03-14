@@ -64,6 +64,15 @@ button:focus-visible {
 	height: 100%;
 	padding: 0;
 	border-radius: 4px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.logout-button {
+	display: flex;
+	margin-left: auto;
+	margin-right: 10%;
 }
 
 #app {
@@ -82,4 +91,21 @@ button:focus-visible {
 	button {
 		background-color: #f9f9f9;
 	}
+}
+
+::-webkit-scrollbar {
+	width: 10px;
+}
+
+::-webkit-scrollbar-track {
+	background: rgba(255, 255, 255, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+	background: #fff;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: #555;
+	cursor: pointer;
 }

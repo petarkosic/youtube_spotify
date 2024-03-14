@@ -1,28 +1,30 @@
 <template>
-	<div>
+	<div class="youtube-playlists">
 		<div v-if="loading">Loading playlist items</div>
 		<div v-if="!loading && playlistItems.length">
 			Playlist items loaded: {{ playlistItems.length }} items
 		</div>
 
-		<ul>
-			<li
-				v-for="playlist in playlists"
-				:key="playlist.id"
-				@click="selectPlaylist(playlist)"
-			>
-				<div>{{ playlist.snippet.title }}</div>
-				<button
-					v-if="selectedPlaylist === playlist.id"
-					@click="getPlaylistItems(playlist.id)"
+		<div class="playlists">
+			<ul>
+				<li
+					v-for="playlist in playlists"
+					:key="playlist.id"
+					@click="selectPlaylist(playlist)"
 				>
-					&gt;
-				</button>
-			</li>
-		</ul>
+					<div>{{ playlist.snippet.title }}</div>
+					<button
+						v-if="selectedPlaylist === playlist.id"
+						@click="getPlaylistItems(playlist.id)"
+					>
+						&gt;
+					</button>
+				</li>
+			</ul>
+		</div>
 	</div>
 
-	<div v-if="playlistItems.length !== 0">
+	<div class="login-button" v-if="playlistItems.length !== 0">
 		<button @click="showSpotifyComponent">Login to Spotify</button>
 	</div>
 </template>
@@ -222,4 +224,57 @@ onMounted(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.youtube-playlists {
+	width: 80%;
+	height: 70%;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.playlist {
+	padding: 2rem;
+}
+
+ul {
+	list-style-type: none;
+	padding: 0;
+	width: 100%;
+	height: 70%;
+	overflow: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+}
+
+li {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 1rem;
+}
+
+li:hover {
+	cursor: pointer;
+	background: rgba(0, 255, 0, 0.1);
+	border-radius: 4px;
+}
+
+li > button {
+	background: rgba(255, 255, 255, 0.5);
+	color: black;
+	font-weight: bold;
+	line-height: 3px;
+}
+
+.login-button {
+	width: 100%;
+	display: flex;
+}
+
+.login-button > button {
+	margin-left: auto;
+	margin-right: 10%;
+}
+</style>

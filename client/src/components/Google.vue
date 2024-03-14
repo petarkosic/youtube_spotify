@@ -1,6 +1,8 @@
 <template>
 	<div class="card card-google">
-		<button v-if="accessToken" @click="logout">Logout</button>
+		<button class="logout-button" v-if="accessToken" @click="logout">
+			Logout
+		</button>
 		<YoutubePlaylists v-if="accessToken" :accessToken="accessToken" />
 		<button v-else @click="login">Login to Google</button>
 		<div v-if="authCancelledError" style="color: red">
