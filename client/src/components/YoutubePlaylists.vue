@@ -14,10 +14,11 @@
 				>
 					<div>{{ playlist.snippet.title }}</div>
 					<button
+						class="select-button"
 						v-if="selectedPlaylist === playlist.id"
 						@click="getPlaylistItems(playlist.id)"
 					>
-						&gt;
+						&#8652;
 					</button>
 				</li>
 			</ul>
@@ -25,7 +26,7 @@
 	</div>
 
 	<div class="login-button" v-if="playlistItems.length !== 0">
-		<button @click="showSpotifyComponent">Login to Spotify</button>
+		<button @click="showSpotifyComponent">Convert</button>
 	</div>
 </template>
 
@@ -257,7 +258,7 @@ li {
 
 li:hover {
 	cursor: pointer;
-	background: rgba(0, 255, 0, 0.1);
+	background: #dd0000;
 	border-radius: 4px;
 }
 
@@ -266,6 +267,21 @@ li > button {
 	color: black;
 	font-weight: bold;
 	line-height: 3px;
+}
+
+.select-button {
+	background: rgba(255, 255, 255, 0.5);
+	line-height: 0px;
+	color: white;
+}
+
+.select-button:hover {
+	background: rgba(255, 255, 255, 0.7);
+	cursor: pointer;
+}
+
+.select-button:focus {
+	outline: none;
 }
 
 .login-button {

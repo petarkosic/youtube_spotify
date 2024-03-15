@@ -4,7 +4,10 @@
 			Logout
 		</button>
 		<YoutubePlaylists v-if="accessToken" :accessToken="accessToken" />
-		<button v-else @click="login">Login to Google</button>
+		<div v-if="!accessToken" class="login-container">
+			<button @click="login">Login to Google</button>
+			<p>Login to Google to access your YouTube playlists</p>
+		</div>
 		<div v-if="authCancelledError" style="color: red">
 			{{ authCancelledError }}
 		</div>
@@ -115,5 +118,26 @@ onMounted(() => {
 <style scoped>
 .card-google {
 	background: #fe0001;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.logout-button {
+	background: #dd0000;
+	color: white;
+}
+
+.logout-button:hover {
+	background: #b20000;
+}
+
+.login-container {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
 }
 </style>

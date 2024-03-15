@@ -180,15 +180,11 @@ onMounted(() => {
 	flex-direction: column;
 }
 
-.playlist {
-	padding: 2rem;
-}
-
 ul {
 	list-style-type: none;
 	padding: 0;
 	width: 100%;
-	height: 70%;
+	height: 100%;
 	overflow: auto;
 	display: flex;
 	flex-direction: column;

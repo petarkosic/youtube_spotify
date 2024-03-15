@@ -1,13 +1,17 @@
 <template>
 	<div class="card card-spotify">
 		<div class="buttons-container">
-			<button @click="goBack">&lt;</button>
+			<button class="back-button" @click="goBack">&lt;</button>
 			<button class="logout-button" v-if="accessToken" @click="logout">
 				Logout
 			</button>
 		</div>
 		<Playlists v-if="accessToken" :accessToken="accessToken" />
-		<button v-else @click="login">Login to Spotify</button>
+
+		<div v-if="!accessToken" class="login-container">
+			<button @click="login">Login to Spotify</button>
+			<p>Login to Spotify to access your Spotify playlists</p>
+		</div>
 		<div v-if="authCancelledError" style="color: red">
 			{{ authCancelledError }}
 		</div>
@@ -128,6 +132,9 @@ onMounted(() => {
 <style scoped>
 .card-spotify {
 	background: #1ed661;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
 }
 
 .buttons-container {
@@ -136,7 +143,26 @@ onMounted(() => {
 	justify-content: space-between;
 }
 
+.buttons-container button {
+	margin: 0;
+	background: #1ec561;
+}
+
+.buttons-container button:hover {
+	background: #1ea361;
+}
+
 button {
 	margin: 0;
+}
+
+.login-container {
+	width: 100%;
+	height: 100%;
+	margin-bottom: 50px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
 }
 </style>
