@@ -30,4 +30,12 @@ const showSpotifyLogin = ref<boolean>(
 	padding: 1rem;
 	border-radius: 8px;
 }
+
+@media screen and (max-width: 768px) {
+	.container {
+		width: 100%;
+		height: 100%;
+		flex-direction: column;
+	}
+}
 </style>

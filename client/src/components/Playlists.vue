@@ -1,6 +1,11 @@
 <template>
 	<div class="spotify-playlists">
 		<h2>Your Playlists</h2>
+		<p class="info" v-if="playlistExists">
+			Playlist
+			<span class="playlist-title"> {{ playlistTitle }} </span>
+			created.
+		</p>
 		<p v-if="searchedSongs !== 0">
 			{{ searchedSongs }} / {{ playlistItems.length }} songs searched
 		</p>
@@ -41,6 +46,7 @@ const playlists = ref<Playlist[]>([]);
 const playlistTitle = ref(localStorage.getItem('selectedPlaylist'));
 const playlistItems = ref(JSON.parse(localStorage.getItem('playlistItems')!));
 const searchedSongs = ref(0);
+const playlistExists = ref(false);
 
 const playlistAlreadyExists = (playlists: Playlist[]) => {
 	const pl = playlists.find(
@@ -63,6 +69,10 @@ const getPlaylists = async () => {
 
 		for (let pl of response.data.items) {
 			playlists.value.push({ id: pl.id, name: pl.name });
+		}
+
+		if (playlistAlreadyExists(playlists.value)) {
+			playlistExists.value = true;
 		}
 
 		if (!playlistAlreadyExists(playlists.value)) {
@@ -178,6 +188,21 @@ onMounted(() => {
 	width: 80%;
 	display: flex;
 	flex-direction: column;
+}
+
+.info {
+	text-align: left;
+	padding: 0 1rem;
+}
+
+.playlist-title {
+	font-weight: bold;
+	color: black;
+}
+
+h2,
+p {
+	margin: 0;
 }
 
 ul {
